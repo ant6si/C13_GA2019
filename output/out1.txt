@@ -1,0 +1,1 @@
+time:178/ epoch: 127134/ best_score: 93/ converge: 0.6
