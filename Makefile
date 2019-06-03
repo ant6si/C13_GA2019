@@ -1,11 +1,10 @@
-my_exe: main.o graph.o
-	g++ -o my_exe main.o graph.o
-
-graph.o: GraphHandler.cpp
-	g++ -c -o graph.o GraphHandler.cpp
+ga_exe : main.o gh.o
+	g++ -o ga_exe main.o gh.o
 
 main.o: main.cpp
 	g++ -c -o main.o main.cpp
 
+gh.o: GraphHandler.cpp
+	g++ -c -o gh.o GraphHandler.cpp
 clean:
-	rm *.o my_exe
+	rm *.o ga_exe

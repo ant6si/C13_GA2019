@@ -92,8 +92,9 @@ int GraphHandler::compute_flipped_score(Chromosome *chrom, int score, int index)
         return score;
     }
     bitset<L> seq = chrom->_sequence;
-
-    for (Edge* elem: adj_mat[index]){
+    list<Edge *>::iterator iter;
+    for (iter = adj_mat[index].begin(); iter != adj_mat[index].end(); iter++) {
+        Edge *elem = (*iter);
         if( seq[ elem->_from] != seq[ elem->_to] ){
             score -= elem->_weight;
         }else{

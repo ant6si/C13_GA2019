@@ -6,9 +6,9 @@
 #define C13_GA2019_METHODS_H
 using namespace std;
 /// Parameters
-int TIME_LIMIT = 178; //50
+int TIME_LIMIT = 180; //50
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 200; //180     //300;170
+int POPULATION_SIZE = 80; //180     //300;170
 //for crossover
 float XOVER_RATIO = 0.10;
 // for selection
@@ -47,12 +47,13 @@ bool is_equal(bitset<L> a, bitset<L> b, int max){
 }
 
 float how_converge(vector<Chromosome*>* vv){
+    /// 90%이상 결
     Chromosome* best = vv->back();
     int c = 0; //count
     int s = vv->size(); // size
     vector<Chromosome*>::reverse_iterator riter(vv->rbegin());
     for(; riter != vv->rend(); ++riter){
-        if((*riter)->_score == (best->_score)){
+        if ((*riter)->_score > (best->_score) * 0.9) {
             //cout<<"same"<<endl;
             c++;
         }
@@ -67,7 +68,7 @@ float how_converge(vector<Chromosome*>* vv){
 void regularize(Chromosome* chrom, GraphHandler* gh){
     // Regularize chromosome and compute score
     // rule: last bit must be 1
-/*
+
     if (chrom->_sequence[0] == 0){
         //cout<<"before reg: "<<(chrom->_sequence)<<endl;
         for(int i=0;i<MAX_NUM;i++) {
@@ -76,7 +77,7 @@ void regularize(Chromosome* chrom, GraphHandler* gh){
 
         //cout<<"after reg: "<< (chrom->_sequence) <<endl;
     }
-*/
+
     gh->compute_score(chrom);
 }
 
@@ -91,13 +92,15 @@ int get_flipped_score (Chromosome* chrom, int index, GraphHandler* gh){
 
 Chromosome* gen_chromosome(float threshold, GraphHandler* gh){
     bitset<L> new_seq(0);
-    double p = ((double) rand() / (RAND_MAX));
+//    double p = ((double) rand() / double(RAND_MAX));
     for(int gene_num=0; gene_num<MAX_NUM; gene_num++){
+        double p = ((double) rand() / double(RAND_MAX));
         if(p > threshold){
-            new_seq[gene_num]=1;
+            new_seq.flip(gene_num);
         }
     }
     Chromosome* new_chrom = new Chromosome(new_seq, 0);
+//    regularize(new_chrom,gh);
     get_score(new_chrom, gh);
     return new_chrom;
 }
@@ -162,6 +165,11 @@ int select(){
 
 int select_random(){
     int num = rand()%POPULATION_SIZE;
+    return num;
+}
+
+int select_random_up() {
+    int num = rand() % (POPULATION_SIZE / 2);
     return num;
 }
 /// Crossover
@@ -251,6 +259,7 @@ void local_optimize_one_chrom(Chromosome* chrom, GraphHandler* gh){
             int new_score = get_flipped_score(origin_chrom, i, gh);
             if(best_score < new_score) {
                 best_seq = origin_chrom->_sequence.flip(i);
+                origin_chrom->_sequence.flip(i);
                 best_score = new_score;
 //                cout<<"improved!!!"<<endl;
                 improved = true;
@@ -299,6 +308,17 @@ int get_best_score(vector<Chromosome*>* population){
     Chromosome* best = population->back();
     return best->_score ;
 }
+
+int get_worst_score(vector<Chromosome *> *population) {
+    Chromosome *worst = population->front();
+    return worst->_score;
+}
+
+int get_median_score(vector<Chromosome *> *population) {
+    Chromosome *median = population->at(POPULATION_SIZE / 2);
+    return median->_score;
+}
+
 
 
 
