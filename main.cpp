@@ -31,8 +31,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population = new vector<Chromosome *>();
     MAX_NUM = gh.get_V();
-//    gen_population_uniform(population, &gh);
-    gen_population_various(population, &gh);
+    gen_population_uniform(population, &gh);
+//    gen_population_various(population, &gh);
     sort(population->begin(), population->end(), compare);
     time_t remain = TIME_LIMIT - (time(NULL) - st);
     int total_best = -999999999;

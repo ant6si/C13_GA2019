@@ -53,7 +53,8 @@ float how_converge(vector<Chromosome*>* vv){
     int s = vv->size(); // size
     vector<Chromosome*>::reverse_iterator riter(vv->rbegin());
     for(; riter != vv->rend(); ++riter){
-        if ((*riter)->_score > (best->_score) * 0.9) {
+        if ((*riter)->_score == (best->_score)) {
+//        if ((*riter)->_score > (best->_score) * 0.9) {
             //cout<<"same"<<endl;
             c++;
         }
