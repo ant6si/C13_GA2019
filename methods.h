@@ -95,7 +95,7 @@ Chromosome* gen_chromosome(float threshold, GraphHandler* gh){
     bitset<L> new_seq(0);
 //    double p = ((double) rand() / double(RAND_MAX));
     for(int gene_num=0; gene_num<MAX_NUM; gene_num++){
-        double p = ((double) rand() / double(RAND_MAX));
+        double p = ( (double) rand() / double(RAND_MAX));
         if(p > threshold){
             new_seq.flip(gene_num);
         }
@@ -304,6 +304,129 @@ void do_local_optimize_random(vector<Chromosome*>* population, GraphHandler* gh)
 
     }
 }
+
+int find_maximum(int* arr, int size, bool* isLocked){
+    int max=-9999999;
+    int max_id=-1;
+    for(int i=0; i<size; i++){
+        if ( (!isLocked[i]) && max < arr[i]){
+            max = arr[i];
+            max_id = i;
+        }
+    }
+    return max_id;
+}
+
+
+int lg_chain_analysis(int* lg_chain, int size, int* ptr_sum){
+    int max = -999999999;
+    int max_id = -1;
+    int sum = 0;
+    for(int idx = 0; idx<size; idx++){
+        sum += lg_chain[idx];
+        if (sum > max){
+            max = sum;
+            max_id = idx;
+        }
+    }
+    ptr_sum[0] = max;
+    assert(max_id != -1);
+    cout<<"computed sum is "<<max<<endl;
+    return max_id;
+}
+
+void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
+    /// Initialize
+
+    /// Find the initial vertex to start ( the vertex with the max gain)
+   bool improved = true;
+    while (improved){
+        int locked_gain[MAX_NUM];
+        bool isLocked[MAX_NUM];
+        for(int idx = 0; idx<MAX_NUM; idx++){
+            locked_gain[idx] = 0; // -9999999?
+            isLocked[idx] = false;
+        }
+        int max_gain = -999999;
+        int init_vertex = -1;
+        for(int v_id = 0; v_id <MAX_NUM; v_id++){
+            int temp_gain = gh->compute_gain(chrom, v_id);
+            if (temp_gain > max_gain){
+                max_gain = temp_gain;
+                init_vertex = v_id;
+            }
+        }
+        isLocked[init_vertex] = true;
+
+        chrom->_sequence.flip(init_vertex);
+        cout<<"Gain: "<<max_gain<<"/ vertex: "<<init_vertex<<endl;
+        list<Edge *>::iterator iter;
+        int target = init_vertex;
+
+        improved = false;
+        int locked_gain_chain[MAX_NUM];
+        int vertex_chain[MAX_NUM];
+        locked_gain_chain[0] = 0;
+        vertex_chain[0] = init_vertex;
+        for (int ii =1; ii<MAX_NUM; ii ++){
+            locked_gain_chain[ii] = -9999999;
+            vertex_chain[ii] = -1;
+        }
+
+        for (int it = 1; it<MAX_NUM; it++){
+            for (iter = gh->adj_mat[target].begin(); iter != gh->adj_mat[target].end(); iter++) {
+                /// Update lock gain for adjacent vertices
+                Edge *elem = (*iter);
+                int that_idx;
+                if (elem->_from == target){
+                    that_idx = elem->_to;
+                }else{
+                    that_idx = elem->_from;
+                }
+                int tmp_locked_gain = gh->compute_locked_gain(chrom, that_idx, isLocked);
+                locked_gain[that_idx] = tmp_locked_gain;
+            }
+            int max_locked_gain_idx = find_maximum(locked_gain, MAX_NUM, isLocked);
+            int max_locked_gain = locked_gain[max_locked_gain_idx];
+//            cout<< max_locked_gain_idx <<"/ max locked gain: "<< max_locked_gain<<endl;
+//            assert(max_locked_gain>=0);
+            locked_gain_chain[it] = max_locked_gain;
+            vertex_chain[it] = max_locked_gain_idx;
+
+            target = max_locked_gain_idx;
+            isLocked[target] = true;
+//            cout<<"target: "<<target<<endl;
+            chrom->_sequence.flip(target);
+        }
+        int ptr_sum[1] ={-9999};
+        int chain_max_id = lg_chain_analysis(locked_gain_chain, MAX_NUM, ptr_sum);
+
+        cout<<chain_max_id<< "/ "<<ptr_sum[0]<<endl;
+        improved = true;
+
+      if(ptr_sum[0] >0){
+          for(int n=MAX_NUM; n > chain_max_id; n--){
+              int to_flip = vertex_chain[n];
+              chrom->_sequence.flip(to_flip);
+          }
+          improved = true;
+          gh->compute_score(chrom);
+          cout<<"Score: "<<chrom->_score<<endl;
+      }
+
+
+    }
+
+
+
+
+}
+
+
+
+
+
+
 
 int get_best_score(vector<Chromosome*>* population){
     Chromosome* best = population->back();

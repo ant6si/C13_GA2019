@@ -103,3 +103,54 @@ int GraphHandler::compute_flipped_score(Chromosome *chrom, int score, int index)
     }
     return score;
 }
+
+int GraphHandler::compute_gain(Chromosome* chrom, int index){
+    if (adj_mat[index].empty()){
+        return 0;
+    }
+    bitset<L> seq = chrom->_sequence;
+    list<Edge *>::iterator iter;
+    int gain = 0;
+    for (iter = adj_mat[index].begin(); iter != adj_mat[index].end(); iter++){
+        Edge *elem = (*iter);
+        if( seq[ elem->_from] != seq[ elem->_to]){
+            gain -= elem->_weight;
+        }else{
+            gain += elem->_weight;
+        }
+    }
+    return gain;
+}
+
+
+
+int GraphHandler::compute_locked_gain(Chromosome* chrom, int index, bool* isLocked){
+    if (adj_mat[index].empty()){
+        return 0;
+    }
+    bitset<L> seq = chrom->_sequence;
+    list<Edge *>::iterator iter;
+    int lg = 0;
+    for (iter = adj_mat[index].begin(); iter != adj_mat[index].end(); iter++){
+        Edge *elem = (*iter);
+        int this_idx;
+        int that_idx;
+        if (elem->_from == index){
+            this_idx = elem->_from;
+            that_idx = elem->_to;
+        }else{
+            this_idx = elem->_to;
+            that_idx = elem->_from;
+        }
+        if ( ! isLocked[that_idx]){
+            continue;
+        }
+        if( this_idx != that_idx){
+            lg -= elem->_weight;
+        }else{
+            lg += elem->_weight;
+        }
+    }
+//    cout<<"Locked Gain: "<<lg<<endl;
+    return lg;
+}

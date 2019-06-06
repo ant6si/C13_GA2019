@@ -9,7 +9,7 @@
 #include <list>
 #include <vector>
 
-#define L 1000
+#define L 3000
 
 using namespace std;
 
@@ -52,8 +52,8 @@ class GraphHandler {
 private:
     int _V, _E;
     list<struct Edge*>* _edges = NULL;
-    list<struct Edge*> adj_mat[L];
 public:
+    list<struct Edge*> adj_mat[L];
     GraphHandler(string filename);
     ~GraphHandler();
 
@@ -62,6 +62,8 @@ public:
     void print();
     void compute_score(Chromosome* chrom);
     int compute_flipped_score(Chromosome* chrom, int score, int index);
+    int compute_gain(Chromosome* chrom, int index);
+    int compute_locked_gain(Chromosome* chrom, int index, bool* isLocked);
 };
 
 #endif //C13_GA2019_GRAPHHANDLER_H

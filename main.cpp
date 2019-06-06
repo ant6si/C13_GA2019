@@ -24,7 +24,7 @@ using namespace std;
 
 
 void do_GA_1(string input_file, ofstream &file_out) {
-    srand(time(NULL));
+//    srand(time(NULL));
     time_t st = time(NULL);
     GraphHandler gh = GraphHandler(input_file);
 
@@ -57,6 +57,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             one_point_xover(offspring, population->at(p1), population->at(p2), &gh);
             // Mutation
             mutation(offspring);
+            local_optimize_one_chrom(offspring, &gh);
             //get score and regularize the new offspring
 //            regularize(offspring, &gh);
             get_score(offspring, &gh);
@@ -66,12 +67,12 @@ void do_GA_1(string input_file, ofstream &file_out) {
         // Sort
         sort(population->begin(), population->end(), compare);
         // Replacement
-        replace_elitism(offsprings, population);
-//        replace_worse(offsprings, population);
+//        replace_elitism(offsprings, population);
+        replace_worse(offsprings, population);
         sort(population->begin(), population->end(), compare);
         //local optimization
 //        do_local_optimize(population, &gh);
-        do_local_optimize_random(population, &gh);
+//        do_local_optimize_random(population, &gh);
         sort(population->begin(), population->end(), compare);
 
         // print best
@@ -136,7 +137,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
 
 ///Local_optimization
 void do_MS_local_opt(string input_file, ofstream &file_out) {
-    srand(time(NULL));
+//    srand((unsigned int)time(0));
     time_t st = time(NULL);
     GraphHandler gh = GraphHandler(input_file);
 
@@ -176,7 +177,7 @@ void do_MS_local_opt(string input_file, ofstream &file_out) {
         epoch++;
         //if (true){
         if (true) {
-            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ befor best: " << before_best
+            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ before best: " << before_best
                  << "/ best_score: " << best_score << endl;
             //cout<<best_score<<endl;
         }
@@ -190,6 +191,8 @@ void do_MS_local_opt(string input_file, ofstream &file_out) {
 }
 
 int main(int argc, char *argv[]) {
+    srand((unsigned int)time(NULL));
+
     /// 제출시 인덱스 1 더하기!
     string input_file;
     string output_file;
@@ -204,7 +207,16 @@ int main(int argc, char *argv[]) {
     }
     ofstream file_out;
     file_out.open(output_file.c_str());
-    do_GA_1(input_file, file_out);
+
+    /// BELOW CODES ARE FOR TESTING
+    GraphHandler gh = GraphHandler(input_file);
+    MAX_NUM = gh.get_V();
+    cout<<input_file<<endl;
+    Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
+//    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
+    max_locked_gain(debug_chrom, &gh);
+
+//    do_GA_1(input_file, file_out);
 //for (int cc=0;cc<5;cc++){
 //    do_MS_local_opt(input_file,file_out);
 //
