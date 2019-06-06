@@ -145,7 +145,7 @@ int GraphHandler::compute_locked_gain(Chromosome* chrom, int index, bool* isLock
         if ( ! isLocked[that_idx]){
             continue;
         }
-        if( this_idx != that_idx){
+        if( seq[this_idx] != seq[that_idx]){
             lg -= elem->_weight;
         }else{
             lg += elem->_weight;

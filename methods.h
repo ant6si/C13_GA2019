@@ -331,22 +331,24 @@ int lg_chain_analysis(int* lg_chain, int size, int* ptr_sum){
     }
     ptr_sum[0] = max;
     assert(max_id != -1);
-    cout<<"computed sum is "<<max<<endl;
+//    cout<<"computed sum is "<<max<<endl;
     return max_id;
 }
 
 void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
-    /// Initialize
-
-    /// Find the initial vertex to start ( the vertex with the max gain)
-   bool improved = true;
+    gh->compute_score(chrom);
+    int origin_score =  chrom->_score;
+    bool improved = true;
     while (improved){
+        /// Initialize
         int locked_gain[MAX_NUM];
         bool isLocked[MAX_NUM];
         for(int idx = 0; idx<MAX_NUM; idx++){
             locked_gain[idx] = 0; // -9999999?
             isLocked[idx] = false;
         }
+        /// Find the initial vertex to start ( the vertex with the max gain)
+
         int max_gain = -999999;
         int init_vertex = -1;
         for(int v_id = 0; v_id <MAX_NUM; v_id++){
@@ -359,7 +361,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
         isLocked[init_vertex] = true;
 
         chrom->_sequence.flip(init_vertex);
-        cout<<"Gain: "<<max_gain<<"/ vertex: "<<init_vertex<<endl;
+//        cout<<"Gain: "<<max_gain<<"/ vertex: "<<init_vertex<<endl;
         list<Edge *>::iterator iter;
         int target = init_vertex;
 
@@ -372,7 +374,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             locked_gain_chain[ii] = -9999999;
             vertex_chain[ii] = -1;
         }
-
+        /// Fill locked gain chain
         for (int it = 1; it<MAX_NUM; it++){
             for (iter = gh->adj_mat[target].begin(); iter != gh->adj_mat[target].end(); iter++) {
                 /// Update lock gain for adjacent vertices
@@ -386,6 +388,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
                 int tmp_locked_gain = gh->compute_locked_gain(chrom, that_idx, isLocked);
                 locked_gain[that_idx] = tmp_locked_gain;
             }
+
             int max_locked_gain_idx = find_maximum(locked_gain, MAX_NUM, isLocked);
             int max_locked_gain = locked_gain[max_locked_gain_idx];
 //            cout<< max_locked_gain_idx <<"/ max locked gain: "<< max_locked_gain<<endl;
@@ -401,32 +404,19 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
         int ptr_sum[1] ={-9999};
         int chain_max_id = lg_chain_analysis(locked_gain_chain, MAX_NUM, ptr_sum);
 
-        cout<<chain_max_id<< "/ "<<ptr_sum[0]<<endl;
-        improved = true;
-
-      if(ptr_sum[0] >0){
-          for(int n=MAX_NUM; n > chain_max_id; n--){
-              int to_flip = vertex_chain[n];
-              chrom->_sequence.flip(to_flip);
-          }
-          improved = true;
-          gh->compute_score(chrom);
-          cout<<"Score: "<<chrom->_score<<endl;
-      }
-
-
+//        cout<<chain_max_id<< "/ "<<ptr_sum[0]<<endl;
+        for(int n=MAX_NUM; n > chain_max_id; n--){
+            int to_flip = vertex_chain[n];
+            chrom->_sequence.flip(to_flip);
+        }
+        gh->compute_score(chrom);
+        if(origin_score < chrom->_score){
+            origin_score = chrom->_score;
+            improved = true;
+//            cout<< "improved, new score; "<<origin_score<<endl;
+        }
     }
-
-
-
-
 }
-
-
-
-
-
-
 
 int get_best_score(vector<Chromosome*>* population){
     Chromosome* best = population->back();

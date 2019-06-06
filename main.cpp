@@ -58,6 +58,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             // Mutation
             mutation(offspring);
             local_optimize_one_chrom(offspring, &gh);
+//            max_locked_gain(offspring, &gh);
             //get score and regularize the new offspring
 //            regularize(offspring, &gh);
             get_score(offspring, &gh);
@@ -207,16 +208,37 @@ int main(int argc, char *argv[]) {
     }
     ofstream file_out;
     file_out.open(output_file.c_str());
-
+/*
     /// BELOW CODES ARE FOR TESTING
     GraphHandler gh = GraphHandler(input_file);
     MAX_NUM = gh.get_V();
     cout<<input_file<<endl;
-    Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
-//    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
-    max_locked_gain(debug_chrom, &gh);
+    int ccount = 0;
+    for (int iter=0; iter<100; iter++){
+        Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
+        Chromosome* chrom_one_bit = new Chromosome();
+        Chromosome* chrom_lg = new Chromosome();
+        chrom_one_bit->_sequence = debug_chrom->_sequence;
+        chrom_lg ->_sequence = debug_chrom->_sequence;
 
-//    do_GA_1(input_file, file_out);
+//    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
+        local_optimize_one_chrom(chrom_one_bit, &gh);
+        gh.compute_score(chrom_one_bit);
+        max_locked_gain(chrom_lg, &gh);
+        gh.compute_score(chrom_lg);
+
+        cout<< "Locked > Onebit: "<<(chrom_lg->_score > chrom_one_bit->_score)<< "/ locked: "<<chrom_lg->_score<<" / one bit: "<<chrom_one_bit->_score<<endl;
+        if (chrom_lg->_score > chrom_one_bit->_score){
+            ccount++;
+        }
+        delete debug_chrom;
+        delete chrom_one_bit;
+        delete chrom_lg;
+    }
+    cout<< "Good count: "<<ccount<<endl;
+*/
+
+    do_GA_1(input_file, file_out);
 //for (int cc=0;cc<5;cc++){
 //    do_MS_local_opt(input_file,file_out);
 //
