@@ -266,6 +266,7 @@ int main(int argc, char *argv[]) {
     */
     for(int cycle=0; cycle < MAX_CYCLE; cycle++ ){
         do_GA_1(input_file, file_out);
+
     }
 
 //for (int cc=0;cc<5;cc++){
