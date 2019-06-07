@@ -15,7 +15,7 @@ float XOVER_RATIO = 0.03;
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
 // for mutation
-float MUTATION_RATE = 0.07;//0.01
+float MUTATION_RATE = 0.07 ;//0.01
 // for annealing
 float MAX_MUTATION_RATE = 0.07;
 float MIN_MUTATION_RATE = 0.001;
