@@ -8,14 +8,14 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 150; //180     //300;170
+int POPULATION_SIZE = 40; //180     //300;170
 //for crossover
-float XOVER_RATIO = 0.03;
+float XOVER_RATIO = 0.06;
 // for selection
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
 // for mutation
-float MUTATION_RATE = 0.001;//0.01
+float MUTATION_RATE = 0.07;//0.01
 // for annealing
 float MAX_MUTATION_RATE = 0.07;
 float MIN_MUTATION_RATE = 0.001;
@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 10;
+int MAX_CYCLE = 1;
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
@@ -432,7 +432,6 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             }
         }
         isLocked[init_vertex] = true;
-
         chrom->_sequence.flip(init_vertex);
 //        cout<<"Gain: "<<max_gain<<"/ vertex: "<<init_vertex<<endl;
         list<Edge *>::iterator iter;
@@ -441,13 +440,15 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
         improved = false;
         int locked_gain_chain[MAX_NUM];
         int vertex_chain[MAX_NUM];
+
         locked_gain_chain[0] = 0;
         vertex_chain[0] = init_vertex;
+        /// Fill locked gain chain
         for (int ii =1; ii<MAX_NUM; ii ++){
             locked_gain_chain[ii] = -9999999;
             vertex_chain[ii] = -1;
         }
-        /// Fill locked gain chain
+
         for (int it = 1; it<MAX_NUM; it++){
             for (iter = gh->adj_mat[target].begin(); iter != gh->adj_mat[target].end(); iter++) {
                 /// Update lock gain for adjacent vertices

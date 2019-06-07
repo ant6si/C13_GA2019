@@ -31,8 +31,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population = new vector<Chromosome *>();
     MAX_NUM = gh.get_V();
-    TIME_LIMIT = int( TIME_LIMIT * (MAX_NUM/3000.0)) -3;
-    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
+    TIME_LIMIT = int( 500 * (MAX_NUM/3000.0)) -3;
+//    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
     gen_population_uniform(population, &gh);
 //    gen_population_various(population, &gh);
 //    sort(population->begin(), population->end(), compare);
@@ -49,10 +49,10 @@ void do_GA_1(string input_file, ofstream &file_out) {
             sort(population->begin(), population->end(), compare);
             Chromosome *offspring = new Chromosome();
             // Selection
-            int p1 = select(); //select_random();
+            int p1 = select_random();
             int p2 = p1;
             while (p1 == p2) {
-                p2 = select(); //select_random();
+                p2 = select_random();
             }
 //            cout<<p1<<", "<<p2<<endl;
 
@@ -99,8 +99,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
         if (epoch % 10 == 0) {
             int ws = get_worst_score(population);
             int ms = get_median_score(population);
-//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
-//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
 //            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
@@ -221,7 +221,8 @@ int main(int argc, char *argv[]) {
     } else {
         // chimera_946.txt cubic_1000.txt planar_800.txt toroidal_800.txt random_500.txt random_1000.txt
 //        input_file = "../input/toroidal_overlapped_3000.txt";
-        input_file = "maxcut.in";
+      input_file = "maxcut.in";
+//        input_file = "../input/cubic_2744.txt";
         output_file = "hello.txt";
     }
     ofstream file_out;
