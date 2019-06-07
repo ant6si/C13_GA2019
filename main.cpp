@@ -62,7 +62,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             n_point_xover(int(MAX_NUM/10), offspring, population->at(p1), population->at(p2), &gh);
             // Mutation
 
-//            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
+            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
             mutation(offspring);
 //            local_optimize_one_chrom(offspring, &gh);
             max_locked_gain(offspring, &gh);
