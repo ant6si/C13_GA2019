@@ -62,7 +62,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             n_point_xover(int(MAX_NUM/10), offspring, population->at(p1), population->at(p2), &gh);
             // Mutation
 
-//            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
+            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
             mutation(offspring);
 //            local_optimize_one_chrom(offspring, &gh);
             max_locked_gain(offspring, &gh);
@@ -99,8 +99,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
         if (epoch % 10 == 0) {
             int ws = get_worst_score(population);
             int ms = get_median_score(population);
-            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
-                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
 //            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
