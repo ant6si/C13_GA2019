@@ -230,7 +230,7 @@ int main(int argc, char *argv[]) {
     /// BELOW CODES ARE FOR TESTING
     GraphHandler gh = GraphHandler(input_file);
     MAX_NUM = gh.get_V();
-    cout<<input_file<<endl;
+//    cout<<input_file<<endl;
     /*
     ///n-point crossover test
     Chromosome* p1 = gen_chromosome(0.5, &gh);
@@ -264,8 +264,10 @@ int main(int argc, char *argv[]) {
     }
     cout<< "Good count: "<<ccount<<endl;
     */
+    for(int cycle=0; cycle < MAX_CYCLE; cycle++ ){
+        do_GA_1(input_file, file_out);
+    }
 
-    do_GA_1(input_file, file_out);
 //for (int cc=0;cc<5;cc++){
 //    do_MS_local_opt(input_file,file_out);
 //
