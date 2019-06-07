@@ -31,9 +31,11 @@ void do_GA_1(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population = new vector<Chromosome *>();
     MAX_NUM = gh.get_V();
+    TIME_LIMIT = int( TIME_LIMIT * (MAX_NUM/3000.0)) -3;
+    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
     gen_population_uniform(population, &gh);
 //    gen_population_various(population, &gh);
-    sort(population->begin(), population->end(), compare);
+//    sort(population->begin(), population->end(), compare);
     time_t remain = TIME_LIMIT - (time(NULL) - st);
     int total_best = -999999999;
     int best_score = -999999999;
@@ -44,36 +46,43 @@ void do_GA_1(string input_file, ofstream &file_out) {
     while (remain > 0) {
         vector<Chromosome *> *offsprings = new vector<Chromosome *>();
         for (int count = 0; count < xover_per_generation; ++count) {
+            sort(population->begin(), population->end(), compare);
             Chromosome *offspring = new Chromosome();
             // Selection
-            int p1 = select_random();
+            int p1 = select(); //select_random();
             int p2 = p1;
             while (p1 == p2) {
-                p2 = select_random();
+                p2 = select(); //select_random();
             }
 //            cout<<p1<<", "<<p2<<endl;
 
             // Xover
-            one_point_xover(offspring, population->at(p1), population->at(p2), &gh);
+//            one_point_xover(offspring, population->at(p1), population->at(p2), &gh);
+
+            n_point_xover(int(MAX_NUM/10), offspring, population->at(p1), population->at(p2), &gh);
             // Mutation
+
+//            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
             mutation(offspring);
-            local_optimize_one_chrom(offspring, &gh);
-//            max_locked_gain(offspring, &gh);
-            //get score and regularize the new offspring
-//            regularize(offspring, &gh);
+//            local_optimize_one_chrom(offspring, &gh);
+            max_locked_gain(offspring, &gh);
+//            get score and regularize the new offspring
+            regularize(offspring, &gh);
             get_score(offspring, &gh);
-            offsprings->push_back(offspring);
+            replace_hybrid(offspring, population->at(p1), population->at(p2), population->front());
+//            offsprings->push_back(offspring);
         }
 
         // Sort
-        sort(population->begin(), population->end(), compare);
+//        sort(population->begin(), population->end(), compare);
         // Replacement
 //        replace_elitism(offsprings, population);
-        replace_worse(offsprings, population);
-        sort(population->begin(), population->end(), compare);
+//        replace_worse(offsprings, population);
+//        sort(population->begin(), population->end(), compare);
         //local optimization
 //        do_local_optimize(population, &gh);
 //        do_local_optimize_random(population, &gh);
+//        do_local_optimize_lg(population, &gh);
         sort(population->begin(), population->end(), compare);
 
         // print best
@@ -90,8 +99,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
         if (epoch % 10 == 0) {
             int ws = get_worst_score(population);
             int ms = get_median_score(population);
-            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
-                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
 //            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
@@ -108,9 +117,15 @@ void do_GA_1(string input_file, ofstream &file_out) {
         offsprings->clear();
         delete (offsprings);
     }
+    int ws = get_worst_score(population);
+    int ms = get_median_score(population);
+    float converge = how_converge(population);
+    cout << epoch << "\t\t" << best_score
+         << "\t\t" << ms << "\t\t" << ws << "\t\t" << converge << endl;
+
     sort(population->begin(), population->end(), compare);
     Chromosome *champ = population->back();
-    file_out << (champ->_score) << endl;
+//    file_out << (champ->_score) << endl;
 //    file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch << "/ best_score: "<< best_score<<"/ converge: "<< last_converge <<endl;
 /* For submission
     sort( population->begin(), population->end(), compare);
@@ -145,6 +160,8 @@ void do_MS_local_opt(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population = new vector<Chromosome *>();
     MAX_NUM = gh.get_V();
+    TIME_LIMIT = 500 * (MAX_NUM/3000) -3;
+    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
     gen_population_uniform(population, &gh);
 //    printVec(population);
 
@@ -203,16 +220,26 @@ int main(int argc, char *argv[]) {
         output_file = string(argv[2]);
     } else {
         // chimera_946.txt cubic_1000.txt planar_800.txt toroidal_800.txt random_500.txt random_1000.txt
-        input_file = "../input/chimera_946.txt";
+//        input_file = "../input/toroidal_overlapped_3000.txt";
+        input_file = "maxcut.in";
         output_file = "hello.txt";
     }
     ofstream file_out;
     file_out.open(output_file.c_str());
-/*
+
     /// BELOW CODES ARE FOR TESTING
     GraphHandler gh = GraphHandler(input_file);
     MAX_NUM = gh.get_V();
     cout<<input_file<<endl;
+    /*
+    ///n-point crossover test
+    Chromosome* p1 = gen_chromosome(0.5, &gh);
+    Chromosome* p2 = gen_chromosome(0.5, &gh);
+    Chromosome* off = gen_chromosome(0.5, &gh);
+    int n = int(MAX_NUM/10);
+    n_point_xover(n, off, p1, p2, &gh);
+    */
+    /* local optimize test
     int ccount = 0;
     for (int iter=0; iter<100; iter++){
         Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
@@ -236,7 +263,7 @@ int main(int argc, char *argv[]) {
         delete chrom_lg;
     }
     cout<< "Good count: "<<ccount<<endl;
-*/
+    */
 
     do_GA_1(input_file, file_out);
 //for (int cc=0;cc<5;cc++){

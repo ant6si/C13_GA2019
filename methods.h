@@ -6,18 +6,21 @@
 #define C13_GA2019_METHODS_H
 using namespace std;
 /// Parameters
-int TIME_LIMIT = 180; //50
+int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 80; //180     //300;170
+int POPULATION_SIZE = 150; //180     //300;170
 //for crossover
-float XOVER_RATIO = 0.10;
+float XOVER_RATIO = 0.03;
 // for selection
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
 // for mutation
-float MUTATION_RATE = 0.01;//0.01
+float MUTATION_RATE = 0.001;//0.01
+// for annealing
+float MAX_MUTATION_RATE = 0.07;
+float MIN_MUTATION_RATE = 0.001;
 // for replacement
-float ELITISM_RATE = 0.08;
+float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 
@@ -47,7 +50,7 @@ bool is_equal(bitset<L> a, bitset<L> b, int max){
 }
 
 float how_converge(vector<Chromosome*>* vv){
-    /// 90%이상 결
+    /// 최적해와 같은 해의 비율
     Chromosome* best = vv->back();
     int c = 0; //count
     int s = vv->size(); // size
@@ -101,7 +104,7 @@ Chromosome* gen_chromosome(float threshold, GraphHandler* gh){
         }
     }
     Chromosome* new_chrom = new Chromosome(new_seq, 0);
-//    regularize(new_chrom,gh);
+    regularize(new_chrom,gh);
     get_score(new_chrom, gh);
     return new_chrom;
 }
@@ -146,13 +149,13 @@ void gen_population_various(vector<Chromosome*>* pop, GraphHandler* gh){
 
 /// Selection
 float compute_fitness(int rank){
-    float fitness = MAX_FITNESS + (rank-1) * (MIN_FITNESS-MAX_FITNESS)/(float(POPULATION_SIZE)-1.0);
+    float fitness = MAX_FITNESS + (float(rank-1)) * (MIN_FITNESS-MAX_FITNESS)/(float(POPULATION_SIZE)-1.0);
     return fitness;
 }
 int select(){
     int num;
-    float sum_of_fitness = float(POPULATION_SIZE)/2 * (MAX_FITNESS-MIN_FITNESS);
-    double point = ((double) rand() / (RAND_MAX)) * sum_of_fitness;
+    float sum_of_fitness = float(POPULATION_SIZE) * (MAX_FITNESS+MIN_FITNESS)/2.0;
+    double point = ((float) rand() / float(RAND_MAX)) * sum_of_fitness;
     float sum = 0;
     for (int i=POPULATION_SIZE-1; i>=0; i--){
         sum += compute_fitness(POPULATION_SIZE-i);
@@ -190,6 +193,7 @@ void xover(Chromosome* offspring, Chromosome* p1, Chromosome* p2, GraphHandler* 
     }
     offspring->_sequence = new_seq;
 }
+
 void one_point_xover(Chromosome* offspring, Chromosome* p1, Chromosome* p2, GraphHandler* gh){
     /// Need to Check
     int point = rand()%MAX_NUM;
@@ -201,6 +205,55 @@ void one_point_xover(Chromosome* offspring, Chromosome* p1, Chromosome* p2, Grap
         }
     }
 }
+
+void n_point_xover(int n, Chromosome* offspring, Chromosome* p1, Chromosome* p2, GraphHandler* gh){
+
+    /// Generate cut points
+    vector<int> cut_points;
+    for(int idx = 0; idx < n; idx++){
+        cut_points.push_back(rand()%MAX_NUM);
+    }
+    sort(cut_points.begin(), cut_points.end());
+    for(int i=0; i<cut_points.size(); i++){
+//        if (i>0 && cut_points[i] == cut_points[i-1]){
+//            cut_points[i] +=1;
+//        }
+//        cout<< cut_points[i]<< " ";
+    }
+//    cout<<endl;
+
+    bool from_p1 = true;
+    int cut_count = 0;
+    for (int ii = 0; ii<MAX_NUM; ii++){
+        if(from_p1){
+            offspring->_sequence.set(ii,p1->_sequence[ii]);
+        }
+        else{
+            offspring->_sequence.set(ii,p2->_sequence[ii]);
+        }
+        if(cut_count < n && ii == cut_points[cut_count]){
+            cut_count++;
+            from_p1 = !(from_p1);
+            while(cut_count< n && cut_points[cut_count] == cut_points[cut_count-1]){
+                cut_count++;
+//                cout<<"Skip!!"<<endl;
+            }
+//            cout<<"Find "<< cut_count<<"-th cut point: "<<cut_points[cut_count-1]<< " / from p1: "<< from_p1<<endl;
+        }
+    }
+    /*
+    /// Need to Check
+    int point = rand()%MAX_NUM;
+    for (int i=0; i<MAX_NUM; i++){
+        if(i<point){
+            offspring->_sequence.set(i,p1->_sequence[i]);
+        }else{
+            offspring->_sequence.set(i,p2->_sequence[i]);
+        }
+    }*/
+}
+
+
 /// Mutation
 void mutation(Chromosome* offspring){
     bitset<L> seq = offspring->_sequence;
@@ -241,6 +294,25 @@ void replace_elitism(vector<Chromosome*>* offsprings, vector<Chromosome*>* popul
         old_c->_sequence = new_c->_sequence;
         old_c->_score = new_c -> _score;
     }
+}
+
+void replace_hybrid(Chromosome* offspring, Chromosome* p1, Chromosome* p2, Chromosome* worst){
+//    cout<< "before/ p1: "<<p1->_score<< "/ p2: "<<p2->_score<< " / worst: "<<worst->_score<<endl;
+
+    Chromosome* worse_p = p1;
+    if(p1->_score > p2->_score){
+        worse_p = p2;
+    }
+
+    if(offspring->_score >= worse_p->_score){
+        worse_p->_sequence = offspring->_sequence;
+        worse_p->_score = offspring -> _score;
+    }
+    else{
+        worst->_sequence = offspring->_sequence;
+        worst->_score = offspring -> _score;
+    }
+//    cout<< "after/ p1: "<<p1->_score<< "/ p2: "<<p2->_score<< " / worst: "<<worst->_score<<endl;
 
 }
 
@@ -344,7 +416,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
         int locked_gain[MAX_NUM];
         bool isLocked[MAX_NUM];
         for(int idx = 0; idx<MAX_NUM; idx++){
-            locked_gain[idx] = 0; // -9999999?
+            locked_gain[idx] = -999999; // 0?
             isLocked[idx] = false;
         }
         /// Find the initial vertex to start ( the vertex with the max gain)
@@ -415,6 +487,16 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             improved = true;
 //            cout<< "improved, new score; "<<origin_score<<endl;
         }
+    }
+}
+
+void do_local_optimize_lg(vector<Chromosome*>* population, GraphHandler* gh){
+    int optimize_num = int(POPULATION_SIZE * OPTIMIZE_RATIO);
+    vector<Chromosome*>::reverse_iterator riter(population->rbegin());
+    riter = population->rbegin();
+    for(int i=0; i<optimize_num; i++){
+        max_locked_gain((*riter), gh);
+        ++riter;
     }
 }
 
