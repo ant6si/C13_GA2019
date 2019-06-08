@@ -59,7 +59,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             // Xover
 //            one_point_xover(offspring, population->at(p1), population->at(p2), &gh);
 
-            n_point_xover(int(MAX_NUM/10), offspring, population->at(p1), population->at(p2), &gh);
+            n_point_xover(int(MAX_NUM/100), offspring, population->at(p1), population->at(p2), &gh);
             // Mutation
 
 //            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
@@ -105,7 +105,6 @@ void do_GA_1(string input_file, ofstream &file_out) {
             //cout<<best_score<<endl;
         }
         remain = TIME_LIMIT - (time(NULL) - st);
-        last_converge = converge;
 
         // Added to free memory
         while (!offsprings->empty()) {
@@ -207,7 +206,7 @@ MAX_NUM = gh.get_V();
 
 
 
-        if (epoch % 5 ==0){
+        if (epoch % 10 == 0){
             /// Apply max-lg to best champ for each island
             max_locked_gain(population1->back(), &gh);
             max_locked_gain(population2->back(), &gh);
