@@ -206,7 +206,7 @@ MAX_NUM = gh.get_V();
 
 
 
-        if (epoch % 10 == 0){
+        if (epoch % 15 == 0){
             /// Apply max-lg to best champ for each island
             max_locked_gain(population1->back(), &gh);
             max_locked_gain(population2->back(), &gh);
