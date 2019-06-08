@@ -1,6 +1,12 @@
-/* local optimize test
+
+    /// local optimize test
     int ccount = 0;
-    for (int iter=0; iter<100; iter++){
+    int time_sum_one_bit = 0;
+    int time_sum_max_lg = 0;
+    int score_sum_one_bit = 0;
+    int score_sum_max_lg = 0;
+    int iter_max = 300;
+    for (int iter=0; iter<iter_max; iter++){
         Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
         Chromosome* chrom_one_bit = new Chromosome();
         Chromosome* chrom_lg = new Chromosome();
@@ -8,10 +14,20 @@
         chrom_lg ->_sequence = debug_chrom->_sequence;
 
 //    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
+        int st1 = time(NULL);
         local_optimize_one_chrom(chrom_one_bit, &gh);
+        time_sum_one_bit += time(NULL)-st1;
+
         gh.compute_score(chrom_one_bit);
+        int st2 = time(NULL);
         max_locked_gain(chrom_lg, &gh);
+        time_sum_max_lg += time(NULL)-st2;
+
         gh.compute_score(chrom_lg);
+
+        score_sum_one_bit += chrom_one_bit->_score;
+        score_sum_max_lg += chrom_lg->_score;
+
 
         cout<< "Locked > Onebit: "<<(chrom_lg->_score > chrom_one_bit->_score)<< "/ locked: "<<chrom_lg->_score<<" / one bit: "<<chrom_one_bit->_score<<endl;
         if (chrom_lg->_score > chrom_one_bit->_score){
@@ -22,8 +38,12 @@
         delete chrom_lg;
     }
     cout<< "Good count: "<<ccount<<endl;
-*/
+    float avg_time_ob = time_sum_one_bit / float(iter_max);
+    float avg_time_ml = time_sum_max_lg / float(iter_max);
+    float avg_sum_ob = score_sum_one_bit / float(iter_max);
+    float avg_sum_ml = score_sum_max_lg / float(iter_max);
 
+    cout<<  avg_time_ob << "\t" << avg_time_ml  << "\t" << avg_sum_ob  << "\t" << avg_sum_ml << endl;
 
 
 /*

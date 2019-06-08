@@ -8,11 +8,11 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 80; //100     //300;170
+int POPULATION_SIZE = 150; //100     //300;170
 //for crossover
-float XOVER_RATIO = 0.015; //0.02
+float XOVER_RATIO = 0.021; //0.02
 // for selection
-float MAX_FITNESS = 1.7;
+float MAX_FITNESS = 2.5;
 float MIN_FITNESS = 1.0;
 // for mutation
 float MUTATION_RATE = 0.07 ;//0.01
@@ -24,7 +24,8 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 5;
+int MAX_CYCLE = 10;
+
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
@@ -486,12 +487,14 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             int to_flip = vertex_chain[n];
             temp_chrom->_sequence.flip(to_flip);
         }
+        regularize(temp_chrom, gh);
         gh->compute_score(temp_chrom);
         if(origin_score < temp_chrom->_score){
+            improved = true;
             origin_score = temp_chrom->_score;
             chrom->_sequence = temp_chrom->_sequence;
             chrom->_score = temp_chrom->_score;
-            improved = true;
+
 //            cout<< "improved, new score; "<<origin_score<<endl;
         }
     }

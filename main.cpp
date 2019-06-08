@@ -40,7 +40,6 @@ void do_GA_1(string input_file, ofstream &file_out) {
     int total_best = -999999999;
     int best_score = -999999999;
     int epoch = 0;
-    float last_converge;
     int xover_per_generation = int(POPULATION_SIZE * XOVER_RATIO);
     ///GA Start
     while (remain > 0) {
@@ -49,10 +48,10 @@ void do_GA_1(string input_file, ofstream &file_out) {
             sort(population->begin(), population->end(), compare);
             Chromosome *offspring = new Chromosome();
             // Selection
-            int p1 = select_random();
+            int p1 = select();//_random();
             int p2 = p1;
             while (p1 == p2) {
-                p2 = select_random();
+                p2 = select();//_random();
             }
 //            cout<<p1<<", "<<p2<<endl;
 
@@ -67,8 +66,9 @@ void do_GA_1(string input_file, ofstream &file_out) {
 //            local_optimize_one_chrom(offspring, &gh);
             max_locked_gain(offspring, &gh);
 //            get score and regularize the new offspring
-            regularize(offspring, &gh);
-            get_score(offspring, &gh);
+              // alreay computed by max-lg
+//            regularize(offspring, &gh);
+//            get_score(offspring, &gh);
             replace_hybrid(offspring, population->at(p1), population->at(p2), population->front());
 //            offsprings->push_back(offspring);
         }
@@ -267,7 +267,7 @@ int main(int argc, char *argv[]) {
     } else {
 
       input_file = "maxcut.in";
-//        input_file = "../data/HW3/treecone_3000.txt";
+ //       input_file = "../data/HW3/treecone_overlapped_3000.txt";
         output_file = "hello.txt";
     }
     ofstream file_out;
@@ -277,13 +277,19 @@ int main(int argc, char *argv[]) {
     GraphHandler gh = GraphHandler(input_file);
     MAX_NUM = gh.get_V();
 
+
+
     for(int cycle=0; cycle < MAX_CYCLE; cycle++ ){
-//        do_GA_1(input_file, file_out);
-        do_islancd_GA_1(input_file, file_out);
+          do_GA_1(input_file, file_out);
+    //    do_islancd_GA_1(input_file, file_out);
 
     }
 
     file_out.close();
+
+
+
+
 
     return 0;
 }
