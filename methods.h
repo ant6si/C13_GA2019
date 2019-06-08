@@ -8,9 +8,9 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 40; //100     //300;170
+int POPULATION_SIZE = 30; //100     //300;170
 //for crossover
-float XOVER_RATIO = 0.2; //0.02
+float XOVER_RATIO = 0.15; //0.02
 // for selection
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 1;
+int MAX_CYCLE = 20;
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
