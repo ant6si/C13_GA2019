@@ -8,12 +8,12 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 20; //100     //300;170
+int POPULATION_SIZE = 80; //100     //300;170
 //for crossover
-float XOVER_RATIO = 0.2; //0.02
+float XOVER_RATIO = 0.015; //0.02
 // for selection
-float MAX_FITNESS = 1.1;
-float MIN_FITNESS = 1;
+float MAX_FITNESS = 1.7;
+float MIN_FITNESS = 1.0;
 // for mutation
 float MUTATION_RATE = 0.07 ;//0.01
 // for annealing
@@ -83,7 +83,7 @@ void regularize(Chromosome* chrom, GraphHandler* gh){
         //cout<<"after reg: "<< (chrom->_sequence) <<endl;
     }
 
-    gh->compute_score(chrom);
+//    gh->compute_score(chrom);
 }
 
 void get_score(Chromosome* chrom, GraphHandler* gh){
@@ -409,8 +409,11 @@ int lg_chain_analysis(int* lg_chain, int size, int* ptr_sum){
 }
 
 void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
-    gh->compute_score(chrom);
     int origin_score =  chrom->_score;
+    Chromosome* temp_chrom = new Chromosome();
+    temp_chrom->_sequence = chrom->_sequence;
+    temp_chrom->_score = chrom->_score;
+
     bool improved = true;
     while (improved){
         /// Initialize
@@ -421,18 +424,18 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             isLocked[idx] = false;
         }
         /// Find the initial vertex to start ( the vertex with the max gain)
-
         int max_gain = -999999;
         int init_vertex = -1;
         for(int v_id = 0; v_id <MAX_NUM; v_id++){
-            int temp_gain = gh->compute_gain(chrom, v_id);
+            int temp_gain = gh->compute_gain(temp_chrom, v_id);
             if (temp_gain > max_gain){
                 max_gain = temp_gain;
                 init_vertex = v_id;
             }
         }
+
         isLocked[init_vertex] = true;
-        chrom->_sequence.flip(init_vertex);
+        temp_chrom->_sequence.flip(init_vertex);
 //        cout<<"Gain: "<<max_gain<<"/ vertex: "<<init_vertex<<endl;
         list<Edge *>::iterator iter;
         int target = init_vertex;
@@ -459,7 +462,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
                 }else{
                     that_idx = elem->_from;
                 }
-                int tmp_locked_gain = gh->compute_locked_gain(chrom, that_idx, isLocked);
+                int tmp_locked_gain = gh->compute_locked_gain(temp_chrom, that_idx, isLocked);
                 locked_gain[that_idx] = tmp_locked_gain;
             }
 
@@ -473,23 +476,27 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
             target = max_locked_gain_idx;
             isLocked[target] = true;
 //            cout<<"target: "<<target<<endl;
-            chrom->_sequence.flip(target);
+            temp_chrom->_sequence.flip(target);
         }
         int ptr_sum[1] ={-9999};
         int chain_max_id = lg_chain_analysis(locked_gain_chain, MAX_NUM, ptr_sum);
 
 //        cout<<chain_max_id<< "/ "<<ptr_sum[0]<<endl;
-        for(int n=MAX_NUM; n > chain_max_id; n--){
+        for(int n=MAX_NUM; n > chain_max_id ; n--){
             int to_flip = vertex_chain[n];
-            chrom->_sequence.flip(to_flip);
+            temp_chrom->_sequence.flip(to_flip);
         }
-        gh->compute_score(chrom);
-        if(origin_score < chrom->_score){
-            origin_score = chrom->_score;
+        gh->compute_score(temp_chrom);
+        if(origin_score < temp_chrom->_score){
+            origin_score = temp_chrom->_score;
+            chrom->_sequence = temp_chrom->_sequence;
+            chrom->_score = temp_chrom->_score;
             improved = true;
 //            cout<< "improved, new score; "<<origin_score<<endl;
         }
     }
+    delete(temp_chrom);
+    //gh->compute_score(chrom);
 }
 
 void do_local_optimize_lg(vector<Chromosome*>* population, GraphHandler* gh){
@@ -520,22 +527,24 @@ int get_median_score(vector<Chromosome *> *population) {
 void do_one_generation(vector<Chromosome *> *population, GraphHandler* gh){
     /// return GA results with sorted version
     int xover_per_generation = int(POPULATION_SIZE * XOVER_RATIO);
+  //  cout<<"SVOER: "<<xover_per_generation<<endl;
     for (int count = 0; count < xover_per_generation; ++count) {
         sort(population->begin(), population->end(), compare);
         Chromosome *offspring = new Chromosome();
         // Selection
-        int p1 = select_random();
+        int p1 = select();//_random();
         int p2 = p1;
         while (p1 == p2) {
-            p2 = select_random();
+            p2 = select();//_random();
         }
         // Xover
         n_point_xover(int(MAX_NUM/100), offspring, population->at(p1), population->at(p2), gh);
         // Mutation
 //            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
         mutation(offspring);
-        local_optimize_one_chrom(offspring,gh);
-//        max_locked_gain(offspring, gh);
+        //local_optimize_one_chrom(offspring,gh);
+        gh->compute_score(offspring); // compute score for local optimization
+        max_locked_gain(offspring, gh);
 //            get score and regularize the new offspring
         regularize(offspring, gh);
         get_score(offspring, gh);
@@ -592,7 +601,25 @@ Chromosome* get_best_in_all_island(vector<Chromosome *> *population1, vector<Chr
     return real_champ;
 
 }
+Chromosome* get_best_in_all_island(vector<Chromosome *> *population1, vector<Chromosome *> *population2,GraphHandler* gh){
+    ///Find the best chromosome in all island!
+    Chromosome* champ1 = population1->back();
+    Chromosome* champ2 = population2->back();
+    Chromosome* real_champ = new Chromosome();
+    int max_score = -9999999;
+    if (max_score < champ1->_score){
+        real_champ->_sequence = champ1->_sequence;
+        real_champ->_score = champ1->_score;
+        max_score = champ1->_score;
+    }
+    if (max_score < champ2->_score){
+        real_champ->_sequence = champ2->_sequence;
+        real_champ->_score = champ2->_score;
+        max_score = champ2->_score;
+    }
+    return real_champ;
 
+}
 
 
 void print_population_status(vector<Chromosome *> *population){

@@ -159,18 +159,18 @@ void do_islancd_GA_1(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population1 = new vector<Chromosome *>();
     vector<Chromosome *> *population2 = new vector<Chromosome *>();
-    vector<Chromosome *> *population3 = new vector<Chromosome *>();
-    vector<Chromosome *> *population4 = new vector<Chromosome *>();
-    vector<Chromosome *> *population5 = new vector<Chromosome *>();
+//    vector<Chromosome *> *population3 = new vector<Chromosome *>();
+//    vector<Chromosome *> *population4 = new vector<Chromosome *>();
+//    vector<Chromosome *> *population5 = new vector<Chromosome *>();
 
 MAX_NUM = gh.get_V();
     TIME_LIMIT = int( 500 * (MAX_NUM/3000.0)) -3;
 //    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
     gen_population_uniform(population1, &gh);
     gen_population_uniform(population2, &gh);
-    gen_population_uniform(population3, &gh);
-    gen_population_uniform(population4, &gh);
-    gen_population_uniform(population5, &gh);
+//    gen_population_uniform(population3, &gh);
+//    gen_population_uniform(population4, &gh);
+//    gen_population_uniform(population5, &gh);
 
     time_t remain = TIME_LIMIT - (time(NULL) - st);
     int total_best = -999999999;
@@ -181,46 +181,49 @@ MAX_NUM = gh.get_V();
     while (remain > 0) {
         do_one_generation(population1, &gh);
         do_one_generation(population2, &gh);
-        do_one_generation(population3, &gh);
-        do_one_generation(population4, &gh);
-        do_one_generation(population5, &gh);
+//        do_one_generation(population3, &gh);
+//        do_one_generation(population4, &gh);
+//        do_one_generation(population5, &gh);
 
         // print best
         Chromosome* best_chrom;
-        best_chrom = get_best_in_all_island(population1, population2,population3,population4,population5, &gh);
+        best_chrom = get_best_in_all_island(population1, population2,&gh);
+//        best_chrom = get_best_in_all_island(population1, population2,population3,population4,population5, &gh);
         best_score = best_chrom->_score;
         delete(best_chrom);
-//        cout << (time(NULL)-st)<< "\t\t" <<epoch << "\t\t" <<best_score<<endl;
-//        cout <<"POP1: ";
-//        print_population_status(population1);
-//        cout <<"POP2: ";
-//        print_population_status(population2);
-//        cout <<"POP3: ";
-//        print_population_status(population3);
-//        cout <<"POP4: ";
-//        print_population_status(population4);
-//        cout <<"POP5: ";
-//        print_population_status(population5);
-//        cout<<endl;
-
-
-
-
-        if (epoch % 15 == 0){
+/*
+        if (epoch %10 == 0){
+            cout << (time(NULL)-st)<< "\t\t" <<epoch << "\t\t" <<best_score<<endl;
+            cout <<"POP1: ";
+            print_population_status(population1);
+            cout <<"POP2: ";
+            print_population_status(population2);
+//            cout <<"POP3: ";
+//            print_population_status(population3);
+//            cout <<"POP4: ";
+//            print_population_status(population4);
+//            cout <<"POP5: ";
+//            print_population_status(population5);
+  //          cout<<endl;
+        }
+*/
+        if (epoch % 30 == 0){
             /// Apply max-lg to best champ for each island
-            max_locked_gain(population1->back(), &gh);
-            max_locked_gain(population2->back(), &gh);
-            max_locked_gain(population3->back(), &gh);
-            max_locked_gain(population4->back(), &gh);
-            max_locked_gain(population5->back(), &gh);
+//            max_locked_gain(population1->back(), &gh);
+//            max_locked_gain(population2->back(), &gh);
+//            max_locked_gain(population3->back(), &gh);
+//            max_locked_gain(population4->back(), &gh);
+//            max_locked_gain(population5->back(), &gh);
 
             /// Interchange chromosome between island
-//            cout<<"move!!!"<<endl;
+ //           cout<<"move!!!"<<endl;
             move_best_to_neighbor(population1, population2);
-            move_best_to_neighbor(population2, population3);
-            move_best_to_neighbor(population3, population4);
-            move_best_to_neighbor(population4, population5);
-            move_best_to_neighbor(population5, population1);
+            move_best_to_neighbor(population2, population1);
+//            move_best_to_neighbor(population2, population3);
+
+//            move_best_to_neighbor(population3, population4);
+//            move_best_to_neighbor(population4, population5);
+//            move_best_to_neighbor(population5, population1);
         }
 
         if (total_best < best_score) {
@@ -242,7 +245,12 @@ MAX_NUM = gh.get_V();
         remain = TIME_LIMIT - (time(NULL) - st);
 
     }
-    cout << epoch << "\t\t" << total_best << endl;
+    float conv1 = how_converge(population1);
+    float conv2 = how_converge(population2);
+    cout << epoch << "\t\t" << total_best << "\t\t"<< conv1 << "\t\t"<< conv2 <<endl;
+
+    delete(population1);
+    delete(population2);
 }
 
 
@@ -257,8 +265,7 @@ int main(int argc, char *argv[]) {
         input_file = string(argv[1]);
         output_file = string(argv[2]);
     } else {
-        // chimera_946.txt cubic_1000.txt planar_800.txt toroidal_800.txt random_500.txt random_1000.txt
-//        input_file = "../input/toroidal_overlapped_3000.txt";
+
       input_file = "maxcut.in";
 //        input_file = "../data/HW3/treecone_3000.txt";
         output_file = "hello.txt";
