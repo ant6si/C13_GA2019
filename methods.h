@@ -8,9 +8,9 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 30; //100     //300;170
+int POPULATION_SIZE = 100; //100     //300;170
 //for crossover
-float XOVER_RATIO = 0.14; //0.02
+float XOVER_RATIO = 0.041; //0.02
 // for selection
 float MAX_FITNESS = 2.5;
 float MIN_FITNESS = 1.0;
