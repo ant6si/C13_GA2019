@@ -48,10 +48,10 @@ void do_GA_1(string input_file, ofstream &file_out) {
             sort(population->begin(), population->end(), compare);
             Chromosome *offspring = new Chromosome();
             // Selection
-            int p1 = select_random();
+            int p1 = select();//_random();
             int p2 = p1;
             while (p1 == p2) {
-                p2 = select_random();
+                p2 = select();//_random();
             }
 //            cout<<p1<<", "<<p2<<endl;
 
