@@ -221,8 +221,8 @@ int main(int argc, char *argv[]) {
     } else {
         // chimera_946.txt cubic_1000.txt planar_800.txt toroidal_800.txt random_500.txt random_1000.txt
 //        input_file = "../input/toroidal_overlapped_3000.txt";
-      input_file = "maxcut.in";
-//        input_file = "../input/cubic_2744.txt";
+//      input_file = "maxcut.in";
+        input_file = "../data/HW3/treecone_3000.txt";
         output_file = "hello.txt";
     }
     ofstream file_out;

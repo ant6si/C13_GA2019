@@ -10,7 +10,7 @@ int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
 int POPULATION_SIZE = 100; //180     //300;170
 //for crossover
-float XOVER_RATIO = 0.03;
+float XOVER_RATIO = 0.01;
 // for selection
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 50;
+int MAX_CYCLE = 10;
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
