@@ -8,9 +8,9 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 100; //180     //300;170
+int POPULATION_SIZE = 40; //100     //300;170
 //for crossover
-float XOVER_RATIO = 0.01;
+float XOVER_RATIO = 0.2; //0.02
 // for selection
 float MAX_FITNESS = 1.1;
 float MIN_FITNESS = 1;
@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 10;
+int MAX_CYCLE = 1;
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
@@ -515,6 +515,93 @@ int get_worst_score(vector<Chromosome *> *population) {
 int get_median_score(vector<Chromosome *> *population) {
     Chromosome *median = population->at(POPULATION_SIZE / 2);
     return median->_score;
+}
+/// For Island GA
+void do_one_generation(vector<Chromosome *> *population, GraphHandler* gh){
+    /// return GA results with sorted version
+    int xover_per_generation = int(POPULATION_SIZE * XOVER_RATIO);
+    for (int count = 0; count < xover_per_generation; ++count) {
+        sort(population->begin(), population->end(), compare);
+        Chromosome *offspring = new Chromosome();
+        // Selection
+        int p1 = select_random();
+        int p2 = p1;
+        while (p1 == p2) {
+            p2 = select_random();
+        }
+        // Xover
+        n_point_xover(int(MAX_NUM/100), offspring, population->at(p1), population->at(p2), gh);
+        // Mutation
+//            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
+        mutation(offspring);
+        local_optimize_one_chrom(offspring,gh);
+//        max_locked_gain(offspring, gh);
+//            get score and regularize the new offspring
+        regularize(offspring, gh);
+        get_score(offspring, gh);
+        replace_hybrid(offspring, population->at(p1), population->at(p2), population->front());
+        delete(offspring);
+    }
+    sort(population->begin(), population->end(), compare);
+}
+
+
+void move_best_to_neighbor(vector<Chromosome *> *from_pop, vector<Chromosome *> *to_pop){
+    /// Assume from_pop and to_pop is sorted
+    /// Replace to_pop's worst chromosome with form_pop's best chromosome.
+    Chromosome* best = from_pop->back();
+    Chromosome* worst = to_pop->front();
+    worst->_sequence = best->_sequence;
+    worst->_score = best->_score;
+}
+
+Chromosome* get_best_in_all_island(vector<Chromosome *> *population1, vector<Chromosome *> *population2,vector<Chromosome *> *population3,vector<Chromosome *> *population4,vector<Chromosome *> *population5,GraphHandler* gh){
+    ///Find the best chromosome in all island!
+    Chromosome* champ1 = population1->back();
+    Chromosome* champ2 = population2->back();
+    Chromosome* champ3 = population3->back();
+    Chromosome* champ4 = population4->back();
+    Chromosome* champ5 = population5->back();
+    Chromosome* real_champ = new Chromosome();
+    int max_score = -9999999;
+    if (max_score < champ1->_score){
+        real_champ->_sequence = champ1->_sequence;
+        real_champ->_score = champ1->_score;
+        max_score = champ1->_score;
+    }
+    if (max_score < champ2->_score){
+        real_champ->_sequence = champ2->_sequence;
+        real_champ->_score = champ2->_score;
+        max_score = champ2->_score;
+    }
+    if (max_score < champ3->_score){
+        real_champ->_sequence = champ3->_sequence;
+        real_champ->_score = champ3->_score;
+        max_score = champ3->_score;
+    }
+    if (max_score < champ4->_score){
+        real_champ->_sequence = champ4->_sequence;
+        real_champ->_score = champ4->_score;
+        max_score = champ4->_score;
+    }
+    if (max_score < champ5->_score){
+        real_champ->_sequence = champ5->_sequence;
+        real_champ->_score = champ5->_score;
+        max_score = champ5->_score;
+    }
+    return real_champ;
+
+}
+
+
+
+void print_population_status(vector<Chromosome *> *population){
+    float converge = how_converge(population);
+    int best_score = get_best_score(population);
+    int ws = get_worst_score(population);
+    int ms = get_median_score(population);
+        cout << "/ best_score: " << best_score << "/ median_score: " << ms << "/ worst_score: "
+        << ws << "/ converge: " << converge << endl;
 }
 
 

@@ -1,0 +1,128 @@
+/* local optimize test
+    int ccount = 0;
+    for (int iter=0; iter<100; iter++){
+        Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
+        Chromosome* chrom_one_bit = new Chromosome();
+        Chromosome* chrom_lg = new Chromosome();
+        chrom_one_bit->_sequence = debug_chrom->_sequence;
+        chrom_lg ->_sequence = debug_chrom->_sequence;
+
+//    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
+        local_optimize_one_chrom(chrom_one_bit, &gh);
+        gh.compute_score(chrom_one_bit);
+        max_locked_gain(chrom_lg, &gh);
+        gh.compute_score(chrom_lg);
+
+        cout<< "Locked > Onebit: "<<(chrom_lg->_score > chrom_one_bit->_score)<< "/ locked: "<<chrom_lg->_score<<" / one bit: "<<chrom_one_bit->_score<<endl;
+        if (chrom_lg->_score > chrom_one_bit->_score){
+            ccount++;
+        }
+        delete debug_chrom;
+        delete chrom_one_bit;
+        delete chrom_lg;
+    }
+    cout<< "Good count: "<<ccount<<endl;
+*/
+
+
+
+/*
+    ///FOR SUBMISSION
+    string input_file = "maxcut.in";
+    string output_file = "maxcut.out";
+    ofstream file_out;
+    file_out.open(output_file.c_str());
+    do_GA_1(input_file, file_out);
+
+    //printVec(population);
+    //maxout 에 인덱스 1더하기!!!
+*/
+
+
+
+///Local_optimization
+void do_MS_local_opt(string input_file, ofstream &file_out) {
+//    srand((unsigned int)time(0));
+    time_t st = time(NULL);
+    GraphHandler gh = GraphHandler(input_file);
+
+//    gh.print();
+    vector<Chromosome *> *population = new vector<Chromosome *>();
+    MAX_NUM = gh.get_V();
+    TIME_LIMIT = 500 * (MAX_NUM/3000) -3;
+    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
+    gen_population_uniform(population, &gh);
+//    printVec(population);
+
+//    gen_population_various(population, &gh);
+    sort(population->begin(), population->end(), compare);
+    time_t remain = TIME_LIMIT - (time(NULL) - st);
+    int total_best = -999999999;
+    int best_score = -999999999;
+    int epoch = 0;
+    /// Local opt start
+
+    while (remain > 0) {
+        delete (population);
+        vector<Chromosome *> *population = new vector<Chromosome *>();
+        //local optimization
+        gen_population_uniform(population, &gh);
+//        printVec(population);
+        sort(population->begin(), population->end(), compare);
+        int before_best = get_best_score(population);
+        do_local_optimize(population, &gh);
+        sort(population->begin(), population->end(), compare);
+
+        // print best
+        best_score = get_best_score(population);
+
+        if (total_best < best_score) {
+            total_best = best_score;
+//            cout<<total_best<<endl;
+        }
+
+        epoch++;
+        //if (true){
+        if (true) {
+            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ before best: " << before_best
+                 << "/ best_score: " << best_score << endl;
+            //cout<<best_score<<endl;
+        }
+        remain = TIME_LIMIT - (time(NULL) - st);
+    }
+
+    file_out << total_best << endl;
+//    file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch << "/ best_score: "<< best_score<<"/ converge: "<< last_converge <<endl;
+
+//printVec(population);
+}
+
+
+
+//
+//    sort(population->begin(), population->end(), compare);
+//    Chromosome *champ = population->back();
+//    file_out << (champ->_score) << endl;
+//    file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch << "/ best_score: "<< best_score<<"/ converge: "<< last_converge <<endl;
+/* For submission
+    sort( population->begin(), population->end(), compare);
+    Chromosome* champ = population->back();
+    bitset<L> champ_seq = champ->_sequence;
+
+    vector<int>* champ_vec = new vector<int>();
+
+    for(int x=0; x<MAX_NUM; x++){
+        if(champ_seq[x]==0){
+            champ_vec->push_back((x+1));
+        }
+    }
+    vector<int>::iterator iter;
+    iter = champ_vec->begin();
+    file_out<<(*iter);
+    iter++;
+    for(; iter != champ_vec->end(); iter++){
+        file_out<<" "<< (*iter);
+    }
+    delete champ_vec;
+*/
+//printVec(population);

@@ -151,62 +151,101 @@ void do_GA_1(string input_file, ofstream &file_out) {
 //printVec(population);
 }
 
-///Local_optimization
-void do_MS_local_opt(string input_file, ofstream &file_out) {
-//    srand((unsigned int)time(0));
+
+void do_islancd_GA_1(string input_file, ofstream &file_out) {
+//    srand(time(NULL));
     time_t st = time(NULL);
     GraphHandler gh = GraphHandler(input_file);
 
 //    gh.print();
-    vector<Chromosome *> *population = new vector<Chromosome *>();
-    MAX_NUM = gh.get_V();
-    TIME_LIMIT = 500 * (MAX_NUM/3000) -3;
-    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
-    gen_population_uniform(population, &gh);
-//    printVec(population);
+    vector<Chromosome *> *population1 = new vector<Chromosome *>();
+    vector<Chromosome *> *population2 = new vector<Chromosome *>();
+    vector<Chromosome *> *population3 = new vector<Chromosome *>();
+    vector<Chromosome *> *population4 = new vector<Chromosome *>();
+    vector<Chromosome *> *population5 = new vector<Chromosome *>();
 
-//    gen_population_various(population, &gh);
-    sort(population->begin(), population->end(), compare);
+MAX_NUM = gh.get_V();
+    TIME_LIMIT = int( 500 * (MAX_NUM/3000.0)) -3;
+//    cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
+    gen_population_uniform(population1, &gh);
+    gen_population_uniform(population2, &gh);
+    gen_population_uniform(population3, &gh);
+    gen_population_uniform(population4, &gh);
+    gen_population_uniform(population5, &gh);
+
     time_t remain = TIME_LIMIT - (time(NULL) - st);
     int total_best = -999999999;
     int best_score = -999999999;
-    int epoch = 0;
-    /// Local opt start
-
+    int epoch = 1;
+    int xover_per_generation = int(POPULATION_SIZE * XOVER_RATIO);
+    ///GA Start
     while (remain > 0) {
-        delete (population);
-        vector<Chromosome *> *population = new vector<Chromosome *>();
-        //local optimization
-        gen_population_uniform(population, &gh);
-//        printVec(population);
-        sort(population->begin(), population->end(), compare);
-        int before_best = get_best_score(population);
-        do_local_optimize(population, &gh);
-        sort(population->begin(), population->end(), compare);
+        do_one_generation(population1, &gh);
+        do_one_generation(population2, &gh);
+        do_one_generation(population3, &gh);
+        do_one_generation(population4, &gh);
+        do_one_generation(population5, &gh);
 
         // print best
-        best_score = get_best_score(population);
+        Chromosome* best_chrom;
+        best_chrom = get_best_in_all_island(population1, population2,population3,population4,population5, &gh);
+        best_score = best_chrom->_score;
+        delete(best_chrom);
+//        cout << (time(NULL)-st)<< "\t\t" <<epoch << "\t\t" <<best_score<<endl;
+//        cout <<"POP1: ";
+//        print_population_status(population1);
+//        cout <<"POP2: ";
+//        print_population_status(population2);
+//        cout <<"POP3: ";
+//        print_population_status(population3);
+//        cout <<"POP4: ";
+//        print_population_status(population4);
+//        cout <<"POP5: ";
+//        print_population_status(population5);
+//        cout<<endl;
+
+
+
+
+        if (epoch % 5 ==0){
+            /// Apply max-lg to best champ for each island
+            max_locked_gain(population1->back(), &gh);
+            max_locked_gain(population2->back(), &gh);
+            max_locked_gain(population3->back(), &gh);
+            max_locked_gain(population4->back(), &gh);
+            max_locked_gain(population5->back(), &gh);
+
+            /// Interchange chromosome between island
+//            cout<<"move!!!"<<endl;
+            move_best_to_neighbor(population1, population2);
+            move_best_to_neighbor(population2, population3);
+            move_best_to_neighbor(population3, population4);
+            move_best_to_neighbor(population4, population5);
+            move_best_to_neighbor(population5, population1);
+        }
 
         if (total_best < best_score) {
             total_best = best_score;
-//            cout<<total_best<<endl;
         }
-
         epoch++;
+        /*
+        float converge = how_converge(population);
         //if (true){
-        if (true) {
-            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ before best: " << before_best
-                 << "/ best_score: " << best_score << endl;
+        if (epoch % 10 == 0) {
+            int ws = get_worst_score(population);
+            int ms = get_median_score(population);
+//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+//            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
+         */
         remain = TIME_LIMIT - (time(NULL) - st);
+
     }
-
-    file_out << total_best << endl;
-//    file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch << "/ best_score: "<< best_score<<"/ converge: "<< last_converge <<endl;
-
-//printVec(population);
+    cout << epoch << "\t\t" << total_best << endl;
 }
+
 
 int main(int argc, char *argv[]) {
     srand((unsigned int)time(NULL));
@@ -231,105 +270,13 @@ int main(int argc, char *argv[]) {
     /// BELOW CODES ARE FOR TESTING
     GraphHandler gh = GraphHandler(input_file);
     MAX_NUM = gh.get_V();
-//    cout<<input_file<<endl;
-    /*
-    ///n-point crossover test
-    Chromosome* p1 = gen_chromosome(0.5, &gh);
-    Chromosome* p2 = gen_chromosome(0.5, &gh);
-    Chromosome* off = gen_chromosome(0.5, &gh);
-    int n = int(MAX_NUM/10);
-    n_point_xover(n, off, p1, p2, &gh);
-    */
-    /* local optimize test
-    int ccount = 0;
-    for (int iter=0; iter<100; iter++){
-        Chromosome* debug_chrom = gen_chromosome(0.5, &gh);
-        Chromosome* chrom_one_bit = new Chromosome();
-        Chromosome* chrom_lg = new Chromosome();
-        chrom_one_bit->_sequence = debug_chrom->_sequence;
-        chrom_lg ->_sequence = debug_chrom->_sequence;
 
-//    cout<<(debug_chrom->_score)<<"/ "<<(debug_chrom->_sequence)<<endl;
-        local_optimize_one_chrom(chrom_one_bit, &gh);
-        gh.compute_score(chrom_one_bit);
-        max_locked_gain(chrom_lg, &gh);
-        gh.compute_score(chrom_lg);
-
-        cout<< "Locked > Onebit: "<<(chrom_lg->_score > chrom_one_bit->_score)<< "/ locked: "<<chrom_lg->_score<<" / one bit: "<<chrom_one_bit->_score<<endl;
-        if (chrom_lg->_score > chrom_one_bit->_score){
-            ccount++;
-        }
-        delete debug_chrom;
-        delete chrom_one_bit;
-        delete chrom_lg;
-    }
-    cout<< "Good count: "<<ccount<<endl;
-    */
     for(int cycle=0; cycle < MAX_CYCLE; cycle++ ){
-        do_GA_1(input_file, file_out);
+//        do_GA_1(input_file, file_out);
+        do_islancd_GA_1(input_file, file_out);
 
     }
 
-//for (int cc=0;cc<5;cc++){
-//    do_MS_local_opt(input_file,file_out);
-//
-//}
-
-
-/*
- * /// For parameter seach
-    string input_files[] = {"../input/chimera_946.txt", "../input/cubic_1000.txt", "../input/planar_800.txt", "../input/toroidal_800.txt", "../input/random_500.txt", "../input/random_1000.txt"};
-    input_file = input_files[4];
-    output_file = "../output/2_selection_Result.txt";
-    ofstream file_out;
-    file_out.open(output_file.c_str());
-
-    for (int GA_NUM = 2; GA_NUM<3; GA_NUM++){
-        file_out<< "New method start: "<<GA_NUM<<endl;
-        for(int file_num=0; file_num<5;file_num++){
-            input_file = input_files[file_num];
-            file_out<< "Input file: "<<input_file<<endl;
-            for(int pi = 1; pi<4; pi++){
-               for (float ci = 1; ci<4; ci++){
-                   for(int oi = 2; oi<4; oi++){
-                       POPULATION_SIZE = pi*80;
-                       XOVER_RATIO = ci*0.05;
-                       OPTIMIZE_RATIO = 0.5+oi*0.1;
-                       file_out<< "POPULATION SIZE: "<<POPULATION_SIZE << "/ XOVER_RATIO: "<<XOVER_RATIO<<"/ OPT_RATIO: "<<OPTIMIZE_RATIO<<endl;
-                       for(int it=0; it<5; it++){
-
-                           if(GA_NUM==1){
-                               do_GA_1(input_file, file_out);
-                           }
-                           if(GA_NUM==2){
-                               do_GA_2(input_file, file_out);
-                           }
-
-
-                       }
-                   }
-
-               }
-            }
-
-
-        }
-    }
-    file_out.close();
-
-*/
-
-/*
-    ///FOR SUBMISSION
-    string input_file = "maxcut.in";
-    string output_file = "maxcut.out";
-    ofstream file_out;
-    file_out.open(output_file.c_str());
-    do_GA_1(input_file, file_out);
-
-    //printVec(population);
-    //maxout 에 인덱스 1더하기!!!
-*/
     file_out.close();
 
     return 0;
