@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 20;
+int MAX_CYCLE = 5;
 
 bool compare(Chromosome* c1, Chromosome* c2){
     long sc1 = c1->_score;
