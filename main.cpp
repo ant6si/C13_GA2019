@@ -52,8 +52,9 @@ void do_GA_1(string input_file, ofstream &file_out) {
         else {
             if (epoch % 4 ==0){
                 xover_per_generation = 4;
+            }else{
+                xover_per_generation = 3; //4 ?
             }
-            xover_per_generation = 3;
         }
 
         for (int count = 0; count < xover_per_generation; ++count) {
@@ -111,8 +112,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
         if (epoch % 10 == 0) {
             int ws = get_worst_score(population);
             int ms = get_median_score(population);
-//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
-//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
 //            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
@@ -278,8 +279,8 @@ int main(int argc, char *argv[]) {
         output_file = string(argv[2]);
     } else {
 
-      input_file = "maxcut.in";
- //       input_file = "../data/HW3/treecone_overlapped_3000.txt";
+ //     input_file = "maxcut.in";
+        input_file = "../data/HW3/treecone_overlapped_3000.txt";
         output_file = "hello.txt";
     }
     ofstream file_out;

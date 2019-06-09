@@ -12,7 +12,7 @@ int POPULATION_SIZE = 60; //100     //300;170
 //for crossover
 float XOVER_RATIO = 0.041; //0.02
 // for selection
-float MAX_FITNESS = 2.5;
+float MAX_FITNESS = 1.5;
 float MIN_FITNESS = 1.0;
 // for mutation
 float MUTATION_RATE = 0.07 ;//0.01
@@ -24,7 +24,7 @@ float ELITISM_RATE = 0.1;
 // for local optimization
 float OPTIMIZE_RATIO = 0.7;
 //Cycle_count
-int MAX_CYCLE = 10;
+int MAX_CYCLE = 20;
 
 
 bool compare(Chromosome* c1, Chromosome* c2){
@@ -414,9 +414,13 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
     Chromosome* temp_chrom = new Chromosome();
     temp_chrom->_sequence = chrom->_sequence;
     temp_chrom->_score = chrom->_score;
-
+    int st_max_lg = time(NULL);
     bool improved = true;
-    while (improved){
+    while (improved ){
+        if (time(NULL)-st_max_lg > 0.15){
+  //          cout<<"time out"<<endl;
+            break;
+        }
         /// Initialize
         int locked_gain[MAX_NUM];
         bool isLocked[MAX_NUM];
