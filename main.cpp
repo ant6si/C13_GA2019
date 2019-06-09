@@ -50,6 +50,9 @@ void do_GA_1(string input_file, ofstream &file_out) {
             xover_per_generation = 6;
         }
         else {
+            if (epoch % 8 ==0){
+                xover_per_generation = 4;
+            }
             xover_per_generation = 3;
         }
 
