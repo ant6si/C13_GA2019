@@ -50,7 +50,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
             xover_per_generation = 5;
         }
         else {
-            if (epoch % 5 ==0){
+            if (epoch % 4 ==0){
                 xover_per_generation = 4;
             }else{
                 xover_per_generation = 3; //4 ?
@@ -133,7 +133,7 @@ void do_GA_1(string input_file, ofstream &file_out) {
     int ms = get_median_score(population);
     float converge = how_converge(population);
     cout << epoch << "\t\t" << best_score
-         << "\t\t" << ms << "\t\t" << ws << "\t\t" << converge << endl;
+         << "\t\t" << ms << "\t\t" << converge << endl;
 
     sort(population->begin(), population->end(), compare);
     Chromosome *champ = population->back();

@@ -8,11 +8,11 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 60; //100     //300;170
+int POPULATION_SIZE = 70; //100     //300;170
 //for crossover
 float XOVER_RATIO = 0.041; //0.02
 // for selection
-float MAX_FITNESS = 1.3;
+float MAX_FITNESS = 1.4;
 float MIN_FITNESS = 1.0;
 // for mutation
 float MUTATION_RATE = 0.07 ;//0.01
@@ -545,7 +545,7 @@ void do_one_generation(vector<Chromosome *> *population, GraphHandler* gh){
             p2 = select();//_random();
         }
         // Xover
-        n_point_xover(int(MAX_NUM/100), offspring, population->at(p1), population->at(p2), gh);
+        n_point_xover(int(MAX_NUM/150), offspring, population->at(p1), population->at(p2), gh);
         // Mutation
 //            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
         mutation(offspring);
