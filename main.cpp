@@ -172,7 +172,7 @@ void do_MS_local_opt(string input_file, ofstream &file_out) {
 //    gh.print();
     vector<Chromosome *> *population = new vector<Chromosome *>();
     MAX_NUM = gh.get_V();
-    TIME_LIMIT = 500 * (MAX_NUM/3000) -3;
+    TIME_LIMIT = int( 500 * (MAX_NUM/3000.0)) -3;
     cout << "TIME_LIMIT: " <<TIME_LIMIT <<endl;
     gen_population_uniform(population, &gh);
 //    printVec(population);
