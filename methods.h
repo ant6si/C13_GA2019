@@ -8,7 +8,7 @@ using namespace std;
 /// Parameters
 int TIME_LIMIT = 500; //500
 int MAX_NUM; // valid gene length
-int POPULATION_SIZE = 60; //100     //300;170
+int POPULATION_SIZE = 5; //100     //300;170
 //for crossover
 float XOVER_RATIO = 0.041; //0.02
 // for selection
@@ -507,7 +507,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
 }
 
 void do_local_optimize_lg(vector<Chromosome*>* population, GraphHandler* gh){
-    int optimize_num = int(POPULATION_SIZE * OPTIMIZE_RATIO);
+    int optimize_num = POPULATION_SIZE;
     vector<Chromosome*>::reverse_iterator riter(population->rbegin());
     riter = population->rbegin();
     for(int i=0; i<optimize_num; i++){
