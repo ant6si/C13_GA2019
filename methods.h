@@ -417,7 +417,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
     int st_max_lg = time(NULL);
     bool improved = true;
     while (improved ){
-        if (time(NULL)-st_max_lg > 0.15){
+        if (time(NULL)-st_max_lg > 0.10){
   //          cout<<"time out"<<endl;
             break;
         }
@@ -545,7 +545,7 @@ void do_one_generation(vector<Chromosome *> *population, GraphHandler* gh){
             p2 = select();//_random();
         }
         // Xover
-        n_point_xover(int(MAX_NUM/150), offspring, population->at(p1), population->at(p2), gh);
+        n_point_xover(int(MAX_NUM/100), offspring, population->at(p1), population->at(p2), gh);
         // Mutation
 //            MUTATION_RATE = (MAX_MUTATION_RATE - MIN_MUTATION_RATE) / (TIME_LIMIT) * (remain) + 0.001; // annealing
         mutation(offspring);
