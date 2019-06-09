@@ -112,8 +112,8 @@ void do_GA_1(string input_file, ofstream &file_out) {
         if (epoch % 10 == 0) {
             int ws = get_worst_score(population);
             int ms = get_median_score(population);
-            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
-                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
+//            cout << "time:" << (time(NULL) - st) << "/ epoch: " << epoch << "/ best_score: " << best_score
+//                 << "/ median_score: " << ms << "/ worst_score: " << ws << "/ converge: " << converge << endl;
 //            file_out<< "time:"<<(time(NULL)-st)<<"/ epoch: " << epoch <<"/ best_score: "<< best_score<<"/ worst_score: "<< ws<<"/ median_score: "<< ms<<"/ converge: "<< converge <<endl;
             //cout<<best_score<<endl;
         }
