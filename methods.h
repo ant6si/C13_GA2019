@@ -12,7 +12,7 @@ int POPULATION_SIZE = 80; //100     //300;170
 //for crossover
 float XOVER_RATIO = 0.041; //0.02
 // for selection
-float MAX_FITNESS = 3.0;
+float MAX_FITNESS = 3.5;
 float MIN_FITNESS = 1.0;
 // for mutation
 float MUTATION_RATE = 0.07 ;//0.01
