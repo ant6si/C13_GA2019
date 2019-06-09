@@ -417,7 +417,7 @@ void max_locked_gain(Chromosome* chrom, GraphHandler* gh){
     int st_max_lg = time(NULL);
     bool improved = true;
     while (improved ){
-        if (time(NULL)-st_max_lg > 0.08){
+        if (time(NULL)-st_max_lg > 0.1){
   //          cout<<"time out"<<endl;
             break;
         }
