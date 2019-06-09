@@ -236,8 +236,8 @@ int main(int argc, char *argv[]) {
         output_file = string(argv[2]);
     } else {
 
-//      input_file = "maxcut.in";
-        input_file = "../data/HW3/treecone_overlapped_3000.txt";
+      input_file = "maxcut.in";
+//        input_file = "../data/HW3/treecone_overlapped_3000.txt";
         output_file = "hello.txt";
     }
     ofstream file_out;
