@@ -45,14 +45,14 @@ void do_GA_1(string input_file, ofstream &file_out) {
     while (remain > 0) {
         vector<Chromosome *> *offsprings = new vector<Chromosome *>();
         /// New idea
-        if(epoch%5 ==0){
-            xover_per_generation = 4;
-        }else if(epoch > 400){
+
+        if (epoch > 400){
             xover_per_generation = 6;
         }
-        else{
+        else {
             xover_per_generation = 3;
         }
+
         for (int count = 0; count < xover_per_generation; ++count) {
             sort(population->begin(), population->end(), compare);
             Chromosome *offspring = new Chromosome();
